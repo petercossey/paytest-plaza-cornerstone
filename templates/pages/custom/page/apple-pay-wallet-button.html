@@ -1,0 +1,84 @@
+{{#partial "page"}}
+
+<h1>Apple Pay Wallet Button Example</h1>
+
+<div class="container">
+    <div class="description-section">
+        <h2>Overview</h2>
+        <p>This page demonstrates the integration of an Apple Pay button using the <a href="https://github.com/bigcommerce/checkout-sdk-js">BigCommerce Checkout SDK</a>. Key features include:</p>
+        <ul>
+            <li>Dynamic button initialization using the Checkout SDK</li>
+            <li>Customizable button styling options</li>
+            <li>Automatic redirect to order confirmation page on completion</li>
+        </ul>
+
+        <h2>Implementation Details</h2>
+        <p>The button below is implemented with the following key configurations:</p>
+        <ul>
+            <li>Button Style: Black, Medium size</li>
+            <li>Payment Method: Apple Pay</li>
+            <li>Post-payment: Automatic redirect to order confirmation</li>
+        </ul>
+        <p>View the webpage source to see the implementation details.</p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example</h2>
+        <p>Only viewable on devices that support Apple Pay.</p>
+        <div id="my-custom-applypay-button">&nbsp;</div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    (function () {
+        function init() {
+            if (!window.checkoutKitLoader) {
+                var error = new Error('Unable to initialize the checkout button because the required script has not been loaded yet.');
+
+                error.type = 'SCRIPT_NOT_LOADED';
+
+                throw error;
+            }
+
+            window.checkoutKitLoader.load('checkout-button')
+                .then(function (module) {
+                    var initializer = window.checkoutButtonInitializer || module.createCheckoutButtonInitializer({ host: '{{secure_host}}' });
+
+                    initializer.initializeButton({
+                        methodId: 'applepay',
+                        containerId: 'my-custom-applypay-button',
+                        applepay: {
+                            style: {
+                                color: 'black',
+                                size: 'medium',
+                                shape: null,
+                                label: null,
+                                height: null
+                            },
+                            onComplete: () => {
+                                const url = `/checkout/order-confirmation`;
+                                location.replace(url);
+                                return new Promise();
+                            },
+                        },
+                    });
+
+                    window.checkoutButtonInitializer = initializer;
+                });
+        }
+
+        try {
+            init();
+        } catch (error) {
+            if (error.type === 'SCRIPT_NOT_LOADED') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                throw error;
+            }
+        }
+    })();
+</script>
+
+{{/partial}}
+
+{{> layout/base}}
